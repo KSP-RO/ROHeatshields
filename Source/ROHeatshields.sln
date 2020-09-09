@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ROHeatshields", "ROHeatshields.csproj", "{DB91C7B9-0D5D-4EB5-9732-C321101D36BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB91C7B9-0D5D-4EB5-9732-C321101D36BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB91C7B9-0D5D-4EB5-9732-C321101D36BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB91C7B9-0D5D-4EB5-9732-C321101D36BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB91C7B9-0D5D-4EB5-9732-C321101D36BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E349260A-0E58-438F-8C3E-CE840772930F}
+	EndGlobalSection
+EndGlobal
