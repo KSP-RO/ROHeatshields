@@ -110,6 +110,8 @@ namespace ROHeatshields
                 ca.amount = Math.Max(ratio * ca.maxAmount, 0);
             }
 
+            GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
+
             DirtyPAW();
         }
 
