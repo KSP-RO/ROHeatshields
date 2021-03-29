@@ -9,6 +9,8 @@ namespace ROHeatshields
 
         [Persistent] public string name = "";
         [Persistent] public string description = "";
+        [Persistent] public bool disableModAblator = false;
+        
         // procedural heat shield parameters
         [Persistent] public float heatShieldDensity = 0.0f;
         [Persistent] public float heatShieldAblator = 0.0f;
@@ -66,6 +68,7 @@ namespace ROHeatshields
         {
             node.TryGetValue("name", ref name);
             node.TryGetValue("description", ref description);
+            node.TryGetValue("disableModAblator", ref disableModAblator);
 
             node.TryGetValue("heatShieldDensity", ref heatShieldDensity);
             node.TryGetValue("heatShieldAblator", ref heatShieldAblator);
@@ -129,21 +132,22 @@ namespace ROHeatshields
 
             var nodes = GameDatabase.Instance.GetConfigNodes("ROHS_PRESET");
             string s = string.Empty;
-            foreach(var node in nodes)
+            foreach (var node in nodes)
             {
                 HeatShieldPreset preset = null;
 
-                if (node.TryGetValue("name", ref s)  && !string.IsNullOrEmpty(s))
+                if (node.TryGetValue("name", ref s) && !string.IsNullOrEmpty(s))
                     preset = new HeatShieldPreset(node);
 
                 if (preset != null)
                     Presets[preset.name] = preset;
 
-                UnityEngine.Debug.Log($"[ROHeatShield] Loaded preset {preset.name} " + preset);
+                UnityEngine.Debug.Log($"[ROHeatShields] Found and loaded preset {preset.name} ");
             }
 
             // initialize default fallback preset
-            Presets["default"] = new HeatShieldPreset("default");
+            if (!Presets.ContainsKey("default"))
+                Presets["default"] = new HeatShieldPreset("default");
 
             Initialized = true;
         }
