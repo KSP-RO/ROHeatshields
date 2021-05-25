@@ -126,19 +126,29 @@ namespace ROHeatshields
 
             if(modularPart != null && modAblator != null && modAblator.enabled)
             {
-                if (part.Resources[ablatorResourceName] is PartResource ab)
+                if (ablatorResourceName != null && part.Resources.Contains(ablatorResourceName))
                 {
+                    var ab = part.Resources[ablatorResourceName];
                     double ratio = ab.maxAmount > 0 ? ab.amount / ab.maxAmount : 1.0;
                     ab.maxAmount = HeatShieldAblator;
                     ab.amount = Math.Min(ratio * ab.maxAmount, ab.maxAmount);
                 }
+                else
+                    Debug.Log("[ROHeatshields] " + (ablatorResourceName != null
+                        ? $"Resource {ablatorResourceName} not found!"
+                        : "Ablator Resource is null!"));
 
-                if (part.Resources[outputResourceName] is PartResource ca)
+                if (outputResourceName != null && part.Resources.Contains(outputResourceName))
                 {
+                    var ca = part.Resources[outputResourceName];
                     double ratio = ca.maxAmount > 0 ? ca.amount / ca.maxAmount : 1.0;
                     ca.maxAmount = HeatShieldAblator;
                     ca.amount = Math.Max(ratio * ca.maxAmount, 0);
                 }
+                else
+                    Debug.Log("[ROHeatshields] " + (outputResourceName != null
+                        ? $"Resource {outputResourceName} not found!"
+                        : "Output Resource is null!"));
             }
 
             if (HighLogic.LoadedSceneIsEditor && EditorLogic.fetch?.ship != null)
@@ -163,7 +173,7 @@ namespace ROHeatshields
                 part.skinMaxTemp = p.skinMaxTempOverride;
 
             // update ModuleAblator parameters, if present and used
-            if(modAblator != null && p.disableModAblator)
+            if(modAblator != null && !p.disableModAblator)
             {
                 if (!string.IsNullOrWhiteSpace(p.AblativeResource))
                     modAblator.ablativeResource = p.AblativeResource;
