@@ -356,6 +356,12 @@ MigrationBackup/
 */.idea/
 .idea/*
 Source/.idea/*
+/shelf/
+/workspace.xml
+/.idea.ROHeatshields.iml
+/modules.xml
+/contentModel.xml
+/projectSettingsUpdater.xml
 
 # Packages
 *.zip
