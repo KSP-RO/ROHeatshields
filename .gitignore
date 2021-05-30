@@ -353,3 +353,9 @@ MigrationBackup/
 
 # Rider
 .idea/
+*/.idea/
+.idea/*
+Source/.idea/*
+
+# Packages
+*.zip
