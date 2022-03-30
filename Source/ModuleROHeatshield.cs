@@ -171,9 +171,21 @@ namespace ROHeatshields
                 part.maxTemp = p.maxTempOverride;
             if (p.skinMaxTempOverride > 0)
                 part.skinMaxTemp = p.skinMaxTempOverride;
+            if (p.thermalMassModifierOverride > 0)
+                part.thermalMassModifier = p.thermalMassModifierOverride;
+            if (p.skinThermalMassModifierOverride > 0)
+                part.skinThermalMassModifier = p.skinThermalMassModifierOverride;
+            if (p.skinMassPerAreaOverride > 0)
+                part.skinMassPerArea = p.skinMassPerAreaOverride;
+            if (p.skinInternalConductionMultOverride > 0)
+                part.skinInternalConductionMult = p.skinInternalConductionMultOverride;
+            if (p.emissiveConstantOverride > 0)
+                part.emissiveConstant = p.emissiveConstantOverride;
+            if (p.heatConductivityOverride > 0)
+                part.heatConductivity = p.heatConductivityOverride;
 
             // update ModuleAblator parameters, if present and used
-            if(modAblator != null && !p.disableModAblator)
+            if (modAblator != null && !p.disableModAblator)
             {
                 if (!string.IsNullOrWhiteSpace(p.AblativeResource))
                     modAblator.ablativeResource = p.AblativeResource;
@@ -220,14 +232,14 @@ namespace ROHeatshields
                 outputResourceName = modAblator.outputResource;
             }
 
-            if(modAblator != null)
+            if (modAblator != null)
                 modAblator.isEnabled = modAblator.enabled = !p.disableModAblator;
 
             maxTemp = part.maxTemp;
             skinMaxTemp = part.skinMaxTemp;
 
             //prevent DRE from ruining everything
-            if(DREHandler.Found && HighLogic.LoadedSceneIsFlight)
+            if (DREHandler.Found && HighLogic.LoadedSceneIsFlight)
                 DREHandler.SetOperationalTemps(part, maxTemp, skinMaxTemp);
 
             if (!string.IsNullOrEmpty(p.description))

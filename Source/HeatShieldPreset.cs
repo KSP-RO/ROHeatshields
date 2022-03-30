@@ -10,7 +10,7 @@ namespace ROHeatshields
         [Persistent] public string name = "";
         [Persistent] public string description = "";
         [Persistent] public bool disableModAblator = false;
-        
+
         // procedural heat shield parameters
         [Persistent] public float heatShieldDensity = 0.0f;
         [Persistent] public float heatShieldAblator = 0.0f;
@@ -22,6 +22,12 @@ namespace ROHeatshields
         [Persistent] public float massOverride = -1;
         [Persistent] public double maxTempOverride = -1f;
         [Persistent] public double skinMaxTempOverride = -1f;
+        [Persistent] public double thermalMassModifierOverride = -1f;
+        [Persistent] public double skinThermalMassModifierOverride = -1f;
+        [Persistent] public double skinMassPerAreaOverride = -1f;
+        [Persistent] public double skinInternalConductionMultOverride = -1f;
+        [Persistent] public double emissiveConstantOverride = -1f;
+        [Persistent] public double heatConductivityOverride = -1f;
 
         // ModuleAblator overrides
         [Persistent] public string _ablativeResource;
@@ -79,6 +85,12 @@ namespace ROHeatshields
             node.TryGetValue("massOverride", ref massOverride);
             node.TryGetValue("maxTempOverride", ref maxTempOverride);
             node.TryGetValue("skinMaxTempOverride", ref skinMaxTempOverride);
+            node.TryGetValue("thermalMassModifierOverride", ref thermalMassModifierOverride);
+            node.TryGetValue("skinThermalMassModifierOverride", ref skinThermalMassModifierOverride);
+            node.TryGetValue("skinMassPerAreaOverride", ref skinMassPerAreaOverride);
+            node.TryGetValue("skinInternalConductionMultOverride", ref skinInternalConductionMultOverride);
+            node.TryGetValue("emissiveConstantOverride", ref emissiveConstantOverride);
+            node.TryGetValue("heatConductivityOverride", ref heatConductivityOverride);
 
             if (node.TryGetValue("ablativeResource", ref _ablativeResource))
                 AblativeResource = _ablativeResource;
