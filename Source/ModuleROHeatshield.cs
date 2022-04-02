@@ -95,7 +95,7 @@ namespace ROHeatshields
             modAblator = part.FindModuleImplementing<ModuleAblator>();
             modularPart = part.FindModuleImplementing<ModuleROTank>();
 
-            if (modularPart is ModuleROTank)
+            if (HighLogic.LoadedSceneIsEditor && modularPart is ModuleROTank)
             {
                 modularPart.Fields[nameof(modularPart.currentDiameter)].uiControlEditor.onFieldChanged += (bf, ob) => UpdateHeatshieldValues();
                 modularPart.Fields[nameof(modularPart.currentVScale)].uiControlEditor.onFieldChanged += (bf, ob) => UpdateHeatshieldValues();
@@ -155,6 +155,11 @@ namespace ROHeatshields
                 GameEvents.onEditorShipModified.Fire(EditorLogic.fetch.ship);
 
             UpdatePAW();
+
+            // ModuleAblator's Start runs before this PM overrides the ablator values and will precalculate some parameters.
+            // Run this precalculation again after we've finished configuring everything.
+            if (HighLogic.LoadedSceneIsFlight)
+                modAblator?.Start();
         }
 
         public void ApplyPreset(HeatShieldPreset p)
