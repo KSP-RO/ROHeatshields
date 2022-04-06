@@ -124,31 +124,22 @@ namespace ROHeatshields
             hsMass = HeatShieldMass;
             hsCost = HeatShieldCost;
 
-            if(modularPart != null && modAblator != null && modAblator.enabled)
+            if (modularPart != null && modAblator != null && modAblator.enabled)
             {
-                if (ablatorResourceName != null && part.Resources.Contains(ablatorResourceName))
+                if (ablatorResourceName != null)
                 {
-                    var ab = part.Resources[ablatorResourceName];
+                    var ab = EnsureAblatorResource(ablatorResourceName);
                     double ratio = ab.maxAmount > 0 ? ab.amount / ab.maxAmount : 1.0;
                     ab.maxAmount = HeatShieldAblator;
                     ab.amount = Math.Min(ratio * ab.maxAmount, ab.maxAmount);
                 }
-                else
-                    Debug.Log("[ROHeatshields] " + (ablatorResourceName != null
-                        ? $"Resource {ablatorResourceName} not found!"
-                        : "Ablator Resource is null!"));
 
-                if (outputResourceName != null && part.Resources.Contains(outputResourceName))
+                if (outputResourceName != null)
                 {
-                    var ca = part.Resources[outputResourceName];
-                    double ratio = ca.maxAmount > 0 ? ca.amount / ca.maxAmount : 1.0;
+                    var ca = EnsureAblatorResource(outputResourceName);
                     ca.maxAmount = HeatShieldAblator;
-                    ca.amount = Math.Max(ratio * ca.maxAmount, 0);
+                    ca.amount = 0;
                 }
-                else
-                    Debug.Log("[ROHeatshields] " + (outputResourceName != null
-                        ? $"Resource {outputResourceName} not found!"
-                        : "Output Resource is null!"));
             }
 
             if (HighLogic.LoadedSceneIsEditor && EditorLogic.fetch?.ship != null)
@@ -232,13 +223,22 @@ namespace ROHeatshields
                     modAblator.usekg = p.Usekg.Value;
                 if (p.NominalAmountRecip.HasValue)
                     modAblator.nominalAmountRecip = p.NominalAmountRecip.Value;
-
-                ablatorResourceName = modAblator.ablativeResource;
-                outputResourceName = modAblator.outputResource;
             }
 
             if (modAblator != null)
+            {
+                if (p.AblativeResource == null || ablatorResourceName != p.AblativeResource ||
+                    p.OutputResource == null || outputResourceName != p.OutputResource ||
+                    p.disableModAblator)
+                {
+                    RemoveAblatorResources();
+                }
+
+                ablatorResourceName = p.AblativeResource;
+                outputResourceName = p.OutputResource;
+
                 modAblator.isEnabled = modAblator.enabled = !p.disableModAblator;
+            }
 
             maxTemp = part.maxTemp;
             skinMaxTemp = part.skinMaxTemp;
@@ -324,6 +324,55 @@ namespace ROHeatshields
                     window.displayDirty = true;
                 }
             }
+        }
+
+        private void RemoveAblatorResources()
+        {
+            if (ablatorResourceName != null)
+            {
+                part.Resources.Remove(ablatorResourceName);
+            }
+
+            if (outputResourceName != null)
+            {
+                part.Resources.Remove(outputResourceName);
+            }
+
+            // The part can spawn with a set of default resources.
+            // If no resources have been configured through this PartModule yet then need to strip everything that the prefab has.
+            if (part.Resources.Count > 0)
+            {
+                foreach (AvailablePart.ResourceInfo resInf in part.partInfo.resourceInfos)
+                {
+                    part.Resources.Remove(resInf.resourceName);
+                }
+            }
+        }
+
+        private PartResource EnsureAblatorResource(string name)
+        {
+            PartResource res = part.Resources[name];
+            if (res == null)
+            {
+                PartResourceDefinition resDef = PartResourceLibrary.Instance.GetDefinition(name);
+                if (resDef == null)
+                {
+                    Debug.LogError($"[ROHeatshields] Resource {name} not found!");
+                    return null;
+                }
+
+                res = new PartResource(part);
+                res.resourceName = name;
+                res.SetInfo(resDef);
+                res._flowState = true;
+                res.isTweakable = resDef.isTweakable;
+                res.isVisible = resDef.isVisible;
+                res.hideFlow = false;
+                res._flowMode = PartResource.FlowMode.Both;
+                part.Resources.dict.Add(resDef.id, res);
+            }
+
+            return res;
         }
 
         #endregion Custom Methods
