@@ -26,6 +26,7 @@ namespace ROHeatshields
         [Persistent] public double skinThermalMassModifierOverride = -1f;
         [Persistent] public double skinMassPerAreaOverride = -1f;
         [Persistent] public double skinInternalConductionMultOverride = -1f;
+        [Persistent] public double skinSkinConductionMultOverride = -1f;
         [Persistent] public double emissiveConstantOverride = -1f;
         [Persistent] public double heatConductivityOverride = -1f;
 
@@ -89,6 +90,7 @@ namespace ROHeatshields
             node.TryGetValue("skinThermalMassModifierOverride", ref skinThermalMassModifierOverride);
             node.TryGetValue("skinMassPerAreaOverride", ref skinMassPerAreaOverride);
             node.TryGetValue("skinInternalConductionMultOverride", ref skinInternalConductionMultOverride);
+            node.TryGetValue("skinSkinConductionMultOverride", ref skinSkinConductionMultOverride);
             node.TryGetValue("emissiveConstantOverride", ref emissiveConstantOverride);
             node.TryGetValue("heatConductivityOverride", ref heatConductivityOverride);
 

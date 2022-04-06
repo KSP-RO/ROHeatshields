@@ -175,6 +175,8 @@ namespace ROHeatshields
                 part.skinMassPerArea = p.skinMassPerAreaOverride;
             if (p.skinInternalConductionMultOverride > 0)
                 part.skinInternalConductionMult = p.skinInternalConductionMultOverride;
+            if (p.skinSkinConductionMultOverride > 0)
+                part.skinSkinConductionMult = p.skinSkinConductionMultOverride;
             if (p.emissiveConstantOverride > 0)
                 part.emissiveConstant = p.emissiveConstantOverride;
             if (p.heatConductivityOverride > 0)
