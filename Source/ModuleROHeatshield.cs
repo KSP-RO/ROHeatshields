@@ -1,6 +1,7 @@
 ﻿using ROLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ROHeatshields
@@ -34,7 +35,9 @@ namespace ROHeatshields
         private float origCost = 0.0f;
         private string ablatorResourceName;
         private string outputResourceName;
-        [SerializeField] private string[] availablePresetsNames = new string[] { "default" };
+        private bool onLoadFiredInEditor;
+
+        [SerializeField] private string[] availablePresetNames = new string[] { "default" };
 
         #endregion Private Variables
         HeatShieldPreset ActivePreset => HeatShieldPreset.Presets[heatShieldType];
@@ -55,6 +58,20 @@ namespace ROHeatshields
         // and a (diameter based) quadratic term with coefficient HeatShieldAreaCost.
         public float HeatShieldCost => -origCost + HeatShieldBaseCost + CurrentDiameter * HeatShieldDiameterCost + Mathf.Pow(CurrentDiameter, 2.0f) * HeatShieldAreaCost;
 
+        private static bool? _RP1Found = null;
+        public static bool RP1Found
+        {
+            get
+            {
+                if (!_RP1Found.HasValue)
+                {
+                    var assembly = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.assembly.GetName().Name == "RP0")?.assembly;
+                    _RP1Found = assembly != null;
+                }
+                return _RP1Found.Value;
+            }
+        }
+
         #region Standard KSP Overrides
 
         public override void OnStart(StartState state)
@@ -63,13 +80,19 @@ namespace ROHeatshields
             if (!HeatShieldPreset.Initialized)
                 return;
 
-            if (availablePresetsNames.Length > 0 && HighLogic.LoadedSceneIsEditor)
+            if (availablePresetNames.Length > 0 && HighLogic.LoadedSceneIsEditor)
             {
-                string[] unlockedPresetsName = GetUnlockedPresets(availablePresetsNames);
+                // RP-1 allows selecting all configs but will run validation when trying to add the vessel to build queue
+                string[] unlockedPresetsName = RP1Found ? availablePresetNames : GetUnlockedPresets(availablePresetNames);
                 UpdatePresetsList(unlockedPresetsName);
                 Fields[nameof(heatShieldType)].uiControlEditor.onFieldChanged =
                 Fields[nameof(heatShieldType)].uiControlEditor.onSymmetryFieldChanged =
                     (bf, ob) => ApplyPreset(ActivePreset);
+
+                if (!onLoadFiredInEditor)
+                {
+                    EnsureBestAvailableConfigSelected();
+                }
             }
 
             if (ActivePreset is null)
@@ -81,7 +104,9 @@ namespace ROHeatshields
 
         public override void OnLoad(ConfigNode node)
         {
-            if (node.TryGetValue("presets", ref availablePresetsNames))
+            onLoadFiredInEditor = HighLogic.LoadedSceneIsEditor;
+
+            if (node.TryGetValue("presets", ref availablePresetNames))
                 Debug.Log("[ROHeatshields] available presets loaded");
         }
 
@@ -290,19 +315,49 @@ namespace ROHeatshields
             }
 
             var unlocked = new List<string>();
-            foreach (var s in all)
+            foreach (string s in all)
             {
-                if (PartUpgradeManager.Handler.GetUpgrade(s) is null || PartUpgradeManager.Handler.IsEnabled(s))
+                if (IsConfigUnlocked(s))
                 {
                     Debug.Log($"[ROHeatshields] preset {s} is unlocked");
                     unlocked.AddUnique(s);
                 }
             }
 
-            if(unlocked.Count == 0)
+            if (unlocked.Count == 0)
                 unlocked.Add("default");
 
             return unlocked.ToArray();
+        }
+
+        public bool IsConfigUnlocked(string configName)
+        {
+            if (!PartUpgradeManager.Handler.CanHaveUpgrades()) return true;
+
+            PartUpgradeHandler.Upgrade upgd = PartUpgradeManager.Handler.GetUpgrade(configName);
+            if (upgd == null) return true;
+
+            if (PartUpgradeManager.Handler.IsEnabled(configName)) return true;
+
+            if (upgd.entryCost < 1.1 && PartUpgradeManager.Handler.IsAvailableToUnlock(configName) &&
+                PurchaseConfig(upgd))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool PurchaseConfig(PartUpgradeHandler.Upgrade upgd)
+        {
+            if (Funding.CanAfford(upgd.entryCost))
+            {
+                Funding.Instance?.AddFunds(-upgd.entryCost, TransactionReasons.RnDPartPurchase);
+                PartUpgradeManager.Handler.SetUnlocked(upgd.name, true);
+                return true;
+            }
+
+            return false;
         }
 
         private void UpdatePresetsList(string[] options)
@@ -315,6 +370,24 @@ namespace ROHeatshields
             uiControlEditor.display = uiControlEditor.options = options;
 
             Debug.Log($"[ROHeatshields] available presets on part {part.name}: " + string.Join(",", uiControlEditor.options));
+        }
+
+        private void EnsureBestAvailableConfigSelected()
+        {
+            if (IsConfigUnlocked(heatShieldType)) return;
+
+            string bestConfigMatch = null;
+            for (int i = availablePresetNames.IndexOf(heatShieldType) - 1; i >= 0; i--)
+            {
+                bestConfigMatch = availablePresetNames[i];
+                if (IsConfigUnlocked(bestConfigMatch)) break;
+            }
+
+            if (bestConfigMatch != null)
+            {
+                heatShieldType = bestConfigMatch;
+                ApplyPreset(ActivePreset);
+            }
         }
 
         public void UpdatePAW()
@@ -375,6 +448,48 @@ namespace ROHeatshields
             }
 
             return res;
+        }
+
+        /// <summary>
+        /// Called from RP0KCT
+        /// </summary>
+        /// <param name="validationError"></param>
+        /// <param name="canBeResolved"></param>
+        /// <param name="costToResolve"></param>
+        /// <returns></returns>
+        public virtual bool Validate(out string validationError, out bool canBeResolved, out float costToResolve)
+        {
+            validationError = null;
+            canBeResolved = false;
+            costToResolve = 0;
+
+            if (IsConfigUnlocked(heatShieldType)) return true;
+
+            PartUpgradeHandler.Upgrade upgd = PartUpgradeManager.Handler.GetUpgrade(heatShieldType);
+            if (PartUpgradeManager.Handler.IsAvailableToUnlock(heatShieldType))
+            {
+                canBeResolved = true;
+                costToResolve = upgd.entryCost;
+                validationError = $"purchase config {upgd.title}";
+            }
+            else
+            {
+                validationError = $"unlock tech {ResearchAndDevelopment.GetTechnologyTitle(upgd.techRequired)}";
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Called from RP0KCT
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool ResolveValidationError()
+        {
+            PartUpgradeHandler.Upgrade upgd = PartUpgradeManager.Handler.GetUpgrade(heatShieldType);
+            if (upgd == null) return false;
+
+            return PurchaseConfig(upgd);
         }
 
         #endregion Custom Methods
