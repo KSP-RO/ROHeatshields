@@ -16,6 +16,7 @@ namespace ROHeatshields
         [Persistent] public float heatShieldAblator = 0.0f;
         [Persistent] public float heatShieldBaseCost = 0.0f;
         [Persistent] public float heatShieldAreaCost = 0.0f;
+        [Persistent] public float heatShieldAreaExponent = 1.5f;
         [Persistent] public float heatShieldDiameterCost = 0.0f;
 
         // part parameters override
@@ -82,6 +83,7 @@ namespace ROHeatshields
             node.TryGetValue("heatShieldBaseCost", ref heatShieldBaseCost);
             node.TryGetValue("heatShieldDiameterCost", ref heatShieldDiameterCost);
             node.TryGetValue("heatShieldAreaCost", ref heatShieldAreaCost);
+            node.TryGetValue("heatShieldAreaExponent", ref heatShieldAreaExponent);
 
             node.TryGetValue("massOverride", ref massOverride);
             node.TryGetValue("maxTempOverride", ref maxTempOverride);
