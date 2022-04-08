@@ -56,7 +56,7 @@ namespace ROHeatshields
         // Removes base part cost to replace it with our internal calculation instead.
         // There's a heatShieldBaseCost fixed term, a diameter based linear term with coefficient HeatShieldDiameterCost,
         // and a (diameter based) quadratic term with coefficient HeatShieldAreaCost.
-        public float HeatShieldCost => -origCost + HeatShieldBaseCost + CurrentDiameter * HeatShieldDiameterCost + Mathf.Pow(CurrentDiameter, 2.0f) * HeatShieldAreaCost;
+        public float HeatShieldCost => -origCost + HeatShieldBaseCost + CurrentDiameter * HeatShieldDiameterCost + Mathf.Pow(CurrentDiameter, 1.5f) * HeatShieldAreaCost;
 
         private static bool? _RP1Found = null;
         public static bool RP1Found
