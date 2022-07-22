@@ -5,7 +5,7 @@
     "x_netkan_force_v": true,
     "name"           : "ROHeatshields",
     "identifier"     : "ROHeatshields",
-    "abstract"       : "ROHeatshields is adds resizable heatshields at varying tech levels for Realism Overhaul.",
+    "abstract"       : "ROHeatshields adds resizable heatshields at varying tech levels for Realism Overhaul.",
     "author"         : [ "KSP-RO" ],
     "license"        : "MIT",
     "release_status" : "stable",
