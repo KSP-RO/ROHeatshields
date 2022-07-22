@@ -460,11 +460,12 @@ namespace ROHeatshields
         /// <param name="canBeResolved"></param>
         /// <param name="costToResolve"></param>
         /// <returns></returns>
-        public virtual bool Validate(out string validationError, out bool canBeResolved, out float costToResolve)
+        public virtual bool Validate(out string validationError, out bool canBeResolved, out float costToResolve, out string techToResolve)
         {
             validationError = null;
             canBeResolved = false;
             costToResolve = 0;
+            techToResolve = string.Empty;
 
             if (IsConfigUnlocked(heatShieldType)) return true;
 
@@ -477,6 +478,7 @@ namespace ROHeatshields
             }
             else
             {
+                techToResolve = upgd.techRequired;
                 validationError = $"unlock tech {ResearchAndDevelopment.GetTechnologyTitle(upgd.techRequired)}";
             }
 
