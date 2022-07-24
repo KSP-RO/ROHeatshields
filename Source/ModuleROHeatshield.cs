@@ -328,7 +328,7 @@ namespace ROHeatshields
             }
 
             if (unlocked.Count == 0)
-                unlocked.Add("default");
+                unlocked.Add("defaault");
 
             return unlocked.ToArray();
         }
@@ -465,11 +465,13 @@ namespace ROHeatshields
             validationError = null;
             canBeResolved = false;
             costToResolve = 0;
-            techToResolve = string.Empty;
+            techToResolve = null;
 
             if (IsConfigUnlocked(heatShieldType)) return true;
 
             PartUpgradeHandler.Upgrade upgd = PartUpgradeManager.Handler.GetUpgrade(heatShieldType);
+            if(upgd != null)
+                techToResolve = upgd.techRequired;
             if (PartUpgradeManager.Handler.IsAvailableToUnlock(heatShieldType))
             {
                 canBeResolved = true;
@@ -478,7 +480,6 @@ namespace ROHeatshields
             }
             else
             {
-                techToResolve = upgd.techRequired;
                 validationError = $"unlock tech {ResearchAndDevelopment.GetTechnologyTitle(upgd.techRequired)}";
             }
 
