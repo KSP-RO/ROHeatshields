@@ -328,7 +328,7 @@ namespace ROHeatshields
             }
 
             if (unlocked.Count == 0)
-                unlocked.Add("defaault");
+                unlocked.Add("default");
 
             return unlocked.ToArray();
         }
