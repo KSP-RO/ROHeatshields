@@ -355,8 +355,8 @@ namespace ROHeatshields
         {
             if (Funding.CanAfford(upgd.entryCost))
             {
-                Funding.Instance?.AddFunds(-upgd.entryCost, TransactionReasons.RnDPartPurchase);
                 PartUpgradeManager.Handler.SetUnlocked(upgd.name, true);
+                GameEvents.OnPartUpgradePurchased.Fire(upgd);
                 return true;
             }
 
