@@ -415,16 +415,6 @@ namespace ROHeatshields
             {
                 part.Resources.Remove(outputResourceName);
             }
-
-            // The part can spawn with a set of default resources.
-            // If no resources have been configured through this PartModule yet then need to strip everything that the prefab has.
-            if (part.Resources.Count > 0)
-            {
-                foreach (AvailablePart.ResourceInfo resInf in part.partInfo.resourceInfos)
-                {
-                    part.Resources.Remove(resInf.resourceName);
-                }
-            }
         }
 
         private PartResource EnsureAblatorResource(string name)
