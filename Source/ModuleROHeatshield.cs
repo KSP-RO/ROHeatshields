@@ -363,16 +363,37 @@ namespace ROHeatshields
             return false;
         }
 
-        private void UpdatePresetsList(string[] options)
+        private void UpdatePresetsList(string[] presetNames)
         {
             BaseField bf = Fields[nameof(heatShieldType)];
 
-            if (options.Length == 0) { options = new string[] { "NONE" }; }
+            var dispValues = RP1Found && HighLogic.LoadedScene != GameScenes.LOADING ?
+                presetNames.Select(p => ConstructColoredPresetTitle(p)).ToArray() : presetNames;
+
+            if (presetNames.Length == 0)
+            {
+                presetNames = dispValues = new string[] { "NONE" };
+            }
 
             var uiControlEditor = bf.uiControlEditor as UI_ChooseOption;
-            uiControlEditor.display = uiControlEditor.options = options;
+            uiControlEditor.options = presetNames;
+            uiControlEditor.display = dispValues;
 
             Debug.Log($"[ROHeatshields] available presets on part {part.name}: " + string.Join(",", uiControlEditor.options));
+        }
+
+        private string ConstructColoredPresetTitle(string presetName)
+        {
+            if (HighLogic.LoadedScene == GameScenes.LOADING)
+                return presetName;
+
+            string partTech = part.partInfo.TechRequired;
+            if (string.IsNullOrEmpty(partTech) || ResearchAndDevelopment.GetTechnologyState(partTech) != RDTech.State.Available)
+                return $"<color=orange>{presetName}</color>";
+
+            PartUpgradeHandler.Upgrade upgrade = PartUpgradeManager.Handler.GetUpgrade(presetName);
+            bool isTechAvailable = upgrade == null || ResearchAndDevelopment.GetTechnologyState(upgrade.techRequired) == RDTech.State.Available;
+            return isTechAvailable ? presetName : $"<color=orange>{presetName}</color>";
         }
 
         private void EnsureBestAvailableConfigSelected()
@@ -460,7 +481,7 @@ namespace ROHeatshields
             if (IsConfigUnlocked(heatShieldType)) return true;
 
             PartUpgradeHandler.Upgrade upgd = PartUpgradeManager.Handler.GetUpgrade(heatShieldType);
-            if(upgd != null)
+            if (upgd != null)
                 techToResolve = upgd.techRequired;
             if (PartUpgradeManager.Handler.IsAvailableToUnlock(heatShieldType))
             {
