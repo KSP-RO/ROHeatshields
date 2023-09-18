@@ -1,32 +1,27 @@
-{
-    "spec_version"   : "v1.10",
-    "$kref"          : "#/ckan/github/KSP-RO/ROHeatshields",
-    "$vref"          : "#/ckan/ksp-avc",
-    "x_netkan_force_v": true,
-    "name"           : "ROHeatshields",
-    "identifier"     : "ROHeatshields",
-    "abstract"       : "ROHeatshields adds resizable heatshields at varying tech levels for Realism Overhaul.",
-    "author"         : [ "KSP-RO" ],
-    "license"        : "MIT",
-    "release_status" : "stable",
-    "resources" : {
-        "bugtracker"   : "https://github.com/KSP-RO/ROHeatshields/issues",
-        "repository"   : "https://github.com/KSP-RO/ROHeatshields",
-        "homepage"     : "https://discordapp.com/invite/ZGbR6nv"
-    },
-    "depends" : [
-        { "name" : "ModuleManager" },
-        { "name" : "RealismOverhaul" },
-        { "name" : "TexturesUnlimited" },
-        { "name" : "ROLib" },
-    ],
-    "conflicts" : [
-        { "name" : "TweakableEverything" }
-    ],
-    "install" : [
-        {
-            "file"       : "GameData/ROHeatshields",
-            "install_to" : "GameData"
-        }
-    ]
-}
+spec_version: v1.10
+$kref: '#/ckan/github/KSP-RO/ROHeatshields'
+$vref: '#/ckan/ksp-avc'
+x_netkan_force_v: true
+name: ROHeatshields
+identifier: ROHeatshields
+abstract: >-
+  ROHeatshields adds resizable heatshields at varying tech levels for Realism
+  Overhaul.
+author:
+  - KSP-RO
+license: MIT
+release_status: stable
+resources:
+  bugtracker: https://github.com/KSP-RO/ROHeatshields/issues
+  repository: https://github.com/KSP-RO/ROHeatshields
+  homepage: https://discordapp.com/invite/ZGbR6nv
+depends:
+  - name: ModuleManager
+  - name: RealismOverhaul
+  - name: TexturesUnlimited
+  - name: ROLib
+conflicts:
+  - name: TweakableEverything
+install:
+  - file: GameData/ROHeatshields
+    install_to: GameData
