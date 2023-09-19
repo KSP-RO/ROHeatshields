@@ -1,4 +1,4 @@
-spec_version: v1.10
+spec_version: v1.26
 $kref: '#/ckan/github/KSP-RO/ROHeatshields'
 $vref: '#/ckan/ksp-avc'
 x_netkan_force_v: true
@@ -19,6 +19,7 @@ depends:
   - name: ModuleManager
   - name: RealismOverhaul
   - name: TexturesUnlimited
+    suppress_recommendations: true
   - name: ROLib
 conflicts:
   - name: TweakableEverything
