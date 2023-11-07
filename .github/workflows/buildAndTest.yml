@@ -46,7 +46,12 @@ jobs:
           rm -f ${GITHUB_WORKSPACE}/GameData/ROHeatshields/Plugins/*.dll
           msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" ${GITHUB_WORKSPACE}/Source/ROHeatshields.sln
           cp -v ${GITHUB_WORKSPACE}/Source/obj/x64/Release/ROHeatshields.dll ${GITHUB_WORKSPACE}/GameData/ROHeatshields/Plugins/ROHeatshields.dll
-    
+
+      - name: Remove excess DLLs
+        uses: KSP-RO/BuildTools/remove-excess-dlls@master
+        with:
+          path: ${GITHUB_WORKSPACE}/GameData/
+
       - name: Assemble release
         id: assemble-release
         run: |
