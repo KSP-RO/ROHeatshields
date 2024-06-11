@@ -353,14 +353,13 @@ namespace ROHeatshields
 
         public bool PurchaseConfig(PartUpgradeHandler.Upgrade upgd)
         {
-            if (Funding.CanAfford(upgd.entryCost))
-            {
-                PartUpgradeManager.Handler.SetUnlocked(upgd.name, true);
-                GameEvents.OnPartUpgradePurchased.Fire(upgd);
-                return true;
-            }
+            CurrencyModifierQuery cmq = CurrencyModifierQuery.RunQuery(TransactionReasons.RnDPartPurchase, -upgd.entryCost, 0, 0);
+            if (!cmq.CanAfford())
+                return false;
 
-            return false;
+            PartUpgradeManager.Handler.SetUnlocked(upgd.name, true);
+            GameEvents.OnPartUpgradePurchased.Fire(upgd);
+            return true;
         }
 
         private void UpdatePresetsList(string[] presetNames)
