@@ -353,8 +353,7 @@ namespace ROHeatshields
 
         public bool PurchaseConfig(PartUpgradeHandler.Upgrade upgd)
         {
-            CurrencyModifierQuery cmq = CurrencyModifierQuery.RunQuery(TransactionReasons.RnDPartPurchase, -upgd.entryCost, 0, 0);
-            if (!cmq.CanAfford())
+            if (!CanAffordEntryCost(upgd.entryCost))
                 return false;
 
             PartUpgradeManager.Handler.SetUnlocked(upgd.name, true);
@@ -464,7 +463,7 @@ namespace ROHeatshields
         }
 
         /// <summary>
-        /// Called from RP0KCT
+        /// Called from RP-1
         /// </summary>
         /// <param name="validationError"></param>
         /// <param name="canBeResolved"></param>
@@ -497,7 +496,7 @@ namespace ROHeatshields
         }
 
         /// <summary>
-        /// Called from RP0KCT
+        /// Called from RP-1
         /// </summary>
         /// <returns></returns>
         public virtual bool ResolveValidationError()
@@ -506,6 +505,17 @@ namespace ROHeatshields
             if (upgd == null) return false;
 
             return PurchaseConfig(upgd);
+        }
+
+        /// <summary>
+        /// NOTE: Harmony-patched from RP-1 to factor in unlock credit.
+        /// </summary>
+        /// <param name="cost"></param>
+        /// <returns></returns>
+        private static bool CanAffordEntryCost(float cost)
+        {
+            CurrencyModifierQuery cmq = CurrencyModifierQuery.RunQuery(TransactionReasons.RnDPartPurchase, -cost, 0, 0);
+            return cmq.CanAfford();
         }
 
         #endregion Custom Methods
