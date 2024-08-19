@@ -35,8 +35,8 @@ namespace ROHeatshields
         private float origCost = 0.0f;
         private string ablatorResourceName;
         private string outputResourceName;
-        private bool onLoadFiredInEditor;
 
+        [SerializeField] private bool onLoadFiredInEditor;
         [SerializeField] private string[] availablePresetNames = new string[] { "default" };
 
         #endregion Private Variables
