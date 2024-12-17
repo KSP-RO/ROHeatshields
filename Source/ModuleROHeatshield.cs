@@ -50,7 +50,10 @@ namespace ROHeatshields
 
         public float CurrentDiameter => modularPart?.currentDiameter ?? 0f;
         public float CurrentVScale => modularPart?.currentVScale ?? 0f;
-        public float HeatShieldMass => (ActivePreset.massOverride > 0 ? -origMass + ActivePreset.massOverride : 0) + Mathf.Pow(CurrentDiameter, 2.0f) * HeatShieldDensity;
+        public float HeatShieldMass =>
+            (ActivePreset.massOverride > 0 ? -origMass + ActivePreset.massOverride : 0) +
+            (ActivePreset.disableModAblator ? (CurrentVScale + 2) / 2 : 1.0f) *
+            Mathf.Pow(CurrentDiameter, 2.0f) * HeatShieldDensity;
         // Ablator = Round( D² * density * (vScale + 2)/2 )
         public float HeatShieldAblator => Mathf.Round(Mathf.Pow(CurrentDiameter, 2.0f) * ActivePreset.heatShieldAblator * ((CurrentVScale + 2) / 2) * 10f) / 10f;
 
