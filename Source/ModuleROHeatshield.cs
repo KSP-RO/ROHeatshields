@@ -168,12 +168,13 @@ namespace ROHeatshields
 
         #region Custom Methods
 
-        public void UpdateHeatshieldValues()
+        public void UpdateHeatshieldValues(bool updateAblatorInFlight = false)
         {
             hsMass = HeatShieldMass;
             hsCost = HeatShieldCost;
 
-            if (modularPart != null && modAblator != null && modAblator.enabled)
+            if ((HighLogic.LoadedSceneIsEditor || updateAblatorInFlight) &&
+                modularPart != null && modAblator != null && modAblator.enabled)
             {
                 if (ablatorResourceName != null)
                 {
@@ -276,6 +277,7 @@ namespace ROHeatshields
                     modAblator.nominalAmountRecip = p.NominalAmountRecip.Value;
             }
 
+            bool updateAblatorInFlight = false;
             if (modAblator != null)
             {
                 if (p.AblativeResource == null || ablatorResourceName != p.AblativeResource ||
@@ -283,6 +285,7 @@ namespace ROHeatshields
                     p.disableModAblator)
                 {
                     RemoveAblatorResources();
+                    updateAblatorInFlight = true;
                 }
 
                 ablatorResourceName = p.AblativeResource;
@@ -307,7 +310,7 @@ namespace ROHeatshields
                 Fields[nameof(description)].guiActiveEditor = false;
 
             Debug.Log($"[ROHeatshields] loaded preset {p.name} for part {part.name}");
-            UpdateHeatshieldValues();
+            UpdateHeatshieldValues(updateAblatorInFlight);
         }
 
         public void ResetPartToOriginal()
