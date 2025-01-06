@@ -64,7 +64,7 @@ jobs:
           cp -v "${GITHUB_WORKSPACE}/LICENSE" "${RELEASE_DIR}/LICENSE"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ROHeatshields
           path: ${{ steps.assemble-release.outputs.release-dir }}
