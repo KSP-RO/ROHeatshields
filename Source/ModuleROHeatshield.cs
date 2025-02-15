@@ -48,11 +48,32 @@ namespace ROHeatshields
         public float HeatShieldAreaCost => ActivePreset.heatShieldAreaCost;
         public float HeatShieldAreaExponent => ActivePreset.heatShieldAreaExponent;
 
-        public float CurrentDiameter => modularPart?.currentDiameter ?? 0f;
-        public float CurrentVScale => modularPart?.currentVScale ?? 0f;
-        public float HeatShieldMass => (ActivePreset.massOverride > 0 ? -origMass + ActivePreset.massOverride : 0) + Mathf.Pow(CurrentDiameter, 2.0f) * HeatShieldDensity;
-        // Ablator = Round( D² * density * (vScale + 2)/2 )
-        public float HeatShieldAblator => Mathf.Round(Mathf.Pow(CurrentDiameter, 2.0f) * ActivePreset.heatShieldAblator * ((CurrentVScale + 2) / 2) * 10f) / 10f;
+        public float CurrentDiameter => modularPart?.currentDiameter ?? 1f;
+        public float CurrentVScale => modularPart?.currentVScale ?? 1f;
+
+        public float HeatShieldMass
+        {
+            get
+            {
+                float mass = CurrentDiameter * CurrentDiameter * HeatShieldDensity;
+                if (ActivePreset.disableModAblator)
+                {
+                    // Ablative heatshields get more ablator when scaled vertically. For heatshields without ablator,
+                    // scale the base mass.
+                    mass *= CurrentVScale;
+                }
+
+                if (ActivePreset.massOverride > 0)
+                {
+                    mass += -origMass + ActivePreset.massOverride;
+                }
+
+                return mass;
+            }
+        }
+
+        // Ablator = Round( D² * density * vScale )
+        public float HeatShieldAblator => Mathf.Round(CurrentDiameter * CurrentDiameter * ActivePreset.heatShieldAblator * CurrentVScale * 10f) / 10f;
 
         // Removes base part cost to replace it with our internal calculation instead.
         // There's a heatShieldBaseCost fixed term, a diameter based linear term with coefficient HeatShieldDiameterCost,
@@ -147,12 +168,13 @@ namespace ROHeatshields
 
         #region Custom Methods
 
-        public void UpdateHeatshieldValues()
+        public void UpdateHeatshieldValues(bool updateAblatorInFlight = false)
         {
             hsMass = HeatShieldMass;
             hsCost = HeatShieldCost;
 
-            if (modularPart != null && modAblator != null && modAblator.enabled)
+            if ((HighLogic.LoadedSceneIsEditor || updateAblatorInFlight) &&
+                modularPart != null && modAblator != null && modAblator.enabled)
             {
                 if (ablatorResourceName != null)
                 {
@@ -255,6 +277,7 @@ namespace ROHeatshields
                     modAblator.nominalAmountRecip = p.NominalAmountRecip.Value;
             }
 
+            bool updateAblatorInFlight = false;
             if (modAblator != null)
             {
                 if (p.AblativeResource == null || ablatorResourceName != p.AblativeResource ||
@@ -262,6 +285,7 @@ namespace ROHeatshields
                     p.disableModAblator)
                 {
                     RemoveAblatorResources();
+                    updateAblatorInFlight = true;
                 }
 
                 ablatorResourceName = p.AblativeResource;
@@ -286,7 +310,7 @@ namespace ROHeatshields
                 Fields[nameof(description)].guiActiveEditor = false;
 
             Debug.Log($"[ROHeatshields] loaded preset {p.name} for part {part.name}");
-            UpdateHeatshieldValues();
+            UpdateHeatshieldValues(updateAblatorInFlight);
         }
 
         public void ResetPartToOriginal()
